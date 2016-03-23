@@ -2,7 +2,7 @@ const log4js = require('log4js');
 const crypto = require('crypto');
 const logger = log4js.getLogger("UserFacade");
 const User = require(__base + '/server/models/UserModel');
-const Q = require('Q');
+const Q = require('q');
 
 function UsersFacade(){
 
@@ -19,7 +19,7 @@ function UsersFacade(){
 		userPersister.init().then(function(res){
 			logger.info(res);
 		}).catch(function(err){
-			logger.err(err);
+			logger.error(err);
 		});
 	}
 

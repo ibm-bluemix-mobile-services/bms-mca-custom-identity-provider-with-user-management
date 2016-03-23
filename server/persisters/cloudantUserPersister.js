@@ -1,5 +1,5 @@
 const cfenv = require('cfenv');
-const Cloudant = require('Cloudant');
+const Cloudant = require('cloudant');
 const log4js = require('log4js');
 const logger = log4js.getLogger("CloudantUserPersister");
 const Q = require('q');
