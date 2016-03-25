@@ -15,6 +15,7 @@ const logger = log4js.getLogger("Server");
 logger.info("Starting...");
 
 const app = express();
+app.use(cors());
 app.use(session({
 	secret: "12345",
 	resave: false,
@@ -23,14 +24,13 @@ app.use(session({
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(cors());
 
 app.use("/*", function(req,res,next){
-	logger.debug("["+req.session.id+"] Incoming request to", req.originalUrl);
+	logger.debug("["+req.session.id+"] Incoming", req.method, "request to", req.originalUrl);
 	next();
 });
 
-app.use("/api/admin/*", authFilter);
+//app.use("/api/admin/*", authFilter);
 
 app.use(swaggerize({
 	api: require('./../apispec/apispec.json'),
@@ -41,7 +41,7 @@ app.use(swaggerize({
 app.use("/swagger-ui", express.static('swagger-ui'));
 app.use("/", express.static('webapp'));
 
-// UsersFacade.initForInMemDb();
+//usersFacade.initForInMemDb();
 usersFacade.initForCloudant();
 
 app.use(function(req, res){

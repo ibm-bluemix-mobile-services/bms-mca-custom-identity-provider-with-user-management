@@ -6,6 +6,5 @@ applications:
   instances: 1
   memory: 1024M
   timeout: 180
-  buildpack: sdk-for-nodejs
 env:
   NODE_MODULES_CACHE: false

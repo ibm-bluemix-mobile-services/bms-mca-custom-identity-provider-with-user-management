@@ -35,44 +35,49 @@ function UsersFacade(){
 			res.status(500).send(error);
 		});
 	}
-	
-	function postUser(req, res, next){
-		var userData = req.body;
 
-		if (userData.passwordHash != "******"){
-			userData.passwordHash = crypto.createHmac('sha256', '123456')
-				.update(userData.passwordHash)
-				.digest('hex');;
+	function addUser(req, res, next){
+		var userData = req.body;
+		logger.debug("addUser", userData);
+
+		if (!userData.username || !userData.password){
+			return res.status(500).send("Missing one of mandatory properties: username, password");
 		}
 
-		var user = User.fromJSON(userData)
-		logger.debug("postUser", user.toJSON());
+		userData.password = crypto.createHmac('sha256', '123456')
+			.update(userData.password)
+			.digest('hex');
 
-		userPersister.postUser(user).then(function(){
-			res.send("OK");
+		userPersister.addUser(userData).then(function() {
+			getAllUsers(req, res, next);
 		}).catch(function(error){
 			res.status(500).send(error);
 		})
 	}
 
-	function getUser(username){
-		var deferred = Q.defer();
+	function updateUser(req, res, next){
+		var userData = req.body;
+		var username = req.params.username;
+		logger.debug("updateUser", userData);
 
-		logger.debug("getUser ::", username);
-		userPersister.getUser(username).then(function(user){
-			deferred.resolve(user);
+		if (userData.password) {
+			userData.password = crypto.createHmac('sha256', '123456')
+				.update(userData.password)
+				.digest('hex');
+		}
+
+		userPersister.updateUser(username, userData).then(function(){
+			getAllUsers(req,res,next);
 		}).catch(function(error){
-			deferred.reject(error);
-		});
-
-		return deferred.promise;
+			res.status(500).send(error);
+		})
 	}
 
 	function deleteUser(req,res,next){
 		var username = req.params.username;
 		logger.debug("deleteUser ::", username);
 		userPersister.deleteUser(username).then(function(){
-			res.send("OK");
+			getAllUsers(req,res,next);
 		}).catch(function(error){
 			res.status(500).send(error);
 		})
@@ -82,8 +87,8 @@ function UsersFacade(){
 		initForInMemDb: initForInMemDb,
 		initForCloudant: initForCloudant,
 		getAllUsers:getAllUsers,
-		postUser:postUser,
-		getUser:getUser,
+		addUser:addUser,
+		updateUser:updateUser,
 		deleteUser:deleteUser
 	}
 }

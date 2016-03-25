@@ -7,6 +7,7 @@ const User = require('./../models/UserModel');
 
 const ERROR = {
 	USERNAME_NOT_FOUND: "Username not found",
+	USERNAME_EXIST: "Username already exists",
 	CANT_READ_CREDENTIALS: "Can't read Cloudant credentials",
 	ENSURE_ENV_VARS_SET: "Ensure that following environment variables are set ::",
 	FAILED_CONNECTING: "There was a database connectivity error. Please retry again later."
@@ -68,6 +69,34 @@ function CloudantUserPersister(){
 		return deferred.promise;
 	}
 
+	function addUser(userData){
+		var deferred = Q.defer();
+		getLatestDocRevision(userData.username).then(function(rev){
+			if (rev == null){
+				delete userData.lastLogin;
+				var user = User.fromJSON(userData);
+				usersdb.insert(user.toJSON(), userData.username, function(err, resp){
+					if (err != null){
+						logger.error(ERROR.FAILED_CONNECTING, err);
+						return deferred.reject(ERROR.FAILED_CONNECTING);
+					}
+
+					return deferred.resolve();
+				});
+			} else {
+				logger.error(ERROR.USERNAME_EXIST);
+				return deferred.reject(ERROR.USERNAME_EXIST);
+			}
+
+		}).catch(function(err){
+			logger.error(err);
+			deferred.reject(err)
+		});
+
+		return deferred.promise;
+	}
+
+
 	function getUser(username){
 		var deferred = Q.defer();
 		usersdb.get(username, function(err, resp){
@@ -87,43 +116,27 @@ function CloudantUserPersister(){
 		return deferred.promise;
 	}
 
-	function postUser(newUser){
+	function updateUser(username, userData){
 		var deferred = Q.defer();
-
-		getLatestDocRevision(newUser.username).then(function(rev){
-			if (rev == null){
-				// insert
-				usersdb.insert(newUser.toJSON(), newUser.username, function(err, resp){
-					if (err != null){
-						logger.error(ERROR.FAILED_CONNECTING, err);
-						return deferred.reject(ERROR.FAILED_CONNECTING);
-					}
-
-					return deferred.resolve();
-
-				});
-			} else {
-				//update
-				var json = newUser.toJSON();
-				json["_id"] = newUser.username;
-				json["_rev"] = rev;
-				usersdb.insert(json, function(err, resp) {
-					if (err != null) {
-						logger.error(ERROR.FAILED_CONNECTING, err);
-						return deferred.reject(ERROR.FAILED_CONNECTING);
-					}
-
-					return deferred.resolve();
-				});
-			}
-
+		var newUserJson = {};
+		getUser(username).then(function(dbuser){
+			newUserJson = {
+				username: (userData.username) ? userData.username : dbuser.username,
+				password: (userData.password) ? userData.password : dbuser.password,
+				attributes: (userData.attributes) ? userData.attributes : dbuser.attributes,
+				isActive: (typeof(userData.isActive)!="undefined") ? userData.isActive : dbuser.isActive,
+			};
+			return deleteUser(username);
+		}).then(function(){
+			return addUser(newUserJson);
+		}).then(function(){
+			deferred.resolve();
 		}).catch(function(err){
 			logger.error(err);
-			deferred.reject(err)
+			return deferred.reject(err);
 		});
 
 		return deferred.promise;
-
 	}
 
 	function deleteUser(username){
@@ -173,8 +186,8 @@ function CloudantUserPersister(){
 	return {
 		init:init,
 		getAllUsers:getAllUsers,
-		getUser:getUser,
-		postUser:postUser,
+		addUser:addUser,
+		updateUser:updateUser,
 		deleteUser:deleteUser
 	}
 
