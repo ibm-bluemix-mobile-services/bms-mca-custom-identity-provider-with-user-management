@@ -1,4 +1,4 @@
-var loginURL = 'http://anton-custom-identity-provider-with-user-management.mybluemix.net/api/login'
+var loginURL = '/api/login'
 
 $( document ).ready(function() {
    $("#singinButton").click(siginButton);

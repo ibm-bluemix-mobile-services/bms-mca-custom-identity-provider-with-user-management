@@ -36,6 +36,20 @@ function UsersFacade(){
 		});
 	}
 
+	function getUser(username){
+		logger.debug("getUser");
+		var deferred = Q.defer();
+		
+		userPersister.getUser(username).then(function(user){
+			deferred.resolve(user);
+		}).catch(function(error){
+			deferred.reject(error);
+		});
+
+		return deferred.promise;
+	}
+
+
 	function addUser(req, res, next){
 		var userData = req.body;
 		logger.debug("addUser", userData);
@@ -87,6 +101,7 @@ function UsersFacade(){
 		initForInMemDb: initForInMemDb,
 		initForCloudant: initForCloudant,
 		getAllUsers:getAllUsers,
+		getUser:getUser,
 		addUser:addUser,
 		updateUser:updateUser,
 		deleteUser:deleteUser

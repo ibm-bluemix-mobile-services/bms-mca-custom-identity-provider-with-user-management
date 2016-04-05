@@ -1,5 +1,5 @@
 var users = [];
-const adminURL = 'http://anton-custom-identity-provider-with-user-management.mybluemix.net/api/admin/users';
+const adminURL = '/api/admin/users';
 
 //Class for Users
 function User() {

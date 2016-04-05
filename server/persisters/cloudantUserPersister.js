@@ -167,7 +167,6 @@ function CloudantUserPersister(){
 		usersdb.get(docId, function(err, resp){
 			if (err != null){
 				if (err.statusCode == 404) {
-					logger.warn(ERROR.USERNAME_NOT_FOUND);
 					return deferred.resolve(null);
 				} else {
 					logger.error(ERROR.FAILED_CONNECTING, err);
@@ -186,6 +185,7 @@ function CloudantUserPersister(){
 	return {
 		init:init,
 		getAllUsers:getAllUsers,
+		getUser:getUser,
 		addUser:addUser,
 		updateUser:updateUser,
 		deleteUser:deleteUser

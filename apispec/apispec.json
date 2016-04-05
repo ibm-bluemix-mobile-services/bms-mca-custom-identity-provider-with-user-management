@@ -459,12 +459,7 @@
 	],
 	"responses": {
 		"authenticationSuccess": {
-			"description": "Authentication Success",
-			"headers":{
-				"Location": {
-					"description":"Relative path to redirect browser to after successful authentication"
-				}
-			}
+			"description": "Authentication Success"
 		},
 		"serverError": {
 			"description": "Server Error",

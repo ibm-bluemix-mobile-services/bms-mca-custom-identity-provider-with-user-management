@@ -25,7 +25,7 @@ module.exports = {
 			.digest('hex');
 
 		usersFacade.getUser(username).then(function(user){
-			if (user.passwordHash == passwordHash){
+			if (user.password == passwordHash){
 				var response = {
 					status: "success",
 					userIdentity: {

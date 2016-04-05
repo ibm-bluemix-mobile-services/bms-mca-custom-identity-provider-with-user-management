@@ -41,8 +41,8 @@ app.use(swaggerize({
 app.use("/swagger-ui", express.static('swagger-ui'));
 app.use("/", express.static('webapp'));
 
-//usersFacade.initForInMemDb();
-usersFacade.initForCloudant();
+usersFacade.initForInMemDb();
+//usersFacade.initForCloudant();
 
 app.use(function(req, res){
 	res.status(404).send("This is not the URL you're looking for");
