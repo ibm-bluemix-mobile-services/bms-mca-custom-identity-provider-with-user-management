@@ -8,7 +8,6 @@ td, th {
     text-align: center;
 }
 
-button {
-   float: right;
+td > button {
    width: 100%;
 }

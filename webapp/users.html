@@ -16,7 +16,7 @@
 
     <!-- Custom styles for this template -->
     <link href="./css/users.css" rel="stylesheet">
-    <script   src="https://code.jquery.com/jquery-2.2.2.min.js"   integrity="sha256-36cp2Co+/62rEAAYHLmRCPIych47CvdM+uTBJwSzWjI="   crossorigin="anonymous"></script>
+    <script   src="./js/jquery-2.2.2.min.js"></script>
 
     <script   src="./js/bootstrap.min.js"></script>
     <script   src="./js/users.js"></script>
@@ -70,17 +70,21 @@
                         <p id="deleteUser" style="display: none"></p>
                         <div id="addEditUserForm" style="display: none">
                            <form>
-                              <div class="form-group">
+                              <div class="form-group" id="usernameForm">
                                  <label for="usernameInput">Username</label>
                                  <input type="text" class="form-control" id="usernameInput" placeholder="Username">
+                                 <span id="usernameHelp" class="help-block">You need to enter a username</span>
+                                 <span id="usernameExists" class="help-block">Username already exists</span>
                               </div>
-                              <div class="form-group">
+                              <div class="form-group" id="passwordForm">
                                  <label for="exampleInputPassword1">Password</label>
                                  <input type="password" class="form-control" id="passwordInput" placeholder="Password">
+                                 <span id="passwordHelp" class="help-block">You need to enter a password</span>
                               </div>
-                              <div class="form-group">
+                              <div class="form-group" id="attributesForm">
                                  <label for="attributesInputBox">Attributes</label>
                                  <p>{</p><textarea class="form-control" rows="3" id="attributesInputBox" placeholder="key:'value',key2:'value2'"></textarea><p>}</p>
+                                 <span id="attributesHelp" class="help-block">You need proper JSON. ex: "key1":"value1", "key2":"value2"</span>
                               </div>
                            </form>
                         </div>

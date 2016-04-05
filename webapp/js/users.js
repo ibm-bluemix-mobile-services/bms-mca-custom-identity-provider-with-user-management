@@ -24,7 +24,12 @@ function User() {
   return user;
 }
 
-$( document ).ready(getUsers);
+$( document ).ready(function(){
+   getUsers();
+   $('#usernameInput').on('input', inputValid);
+   $('#passwordInput').on('input', inputValid);
+   $('#attributesInputBox').on('input', inputValid);
+});
 
 function getUsers(){
    $.ajax({
@@ -79,7 +84,8 @@ function postUser(user, userIndex){
                   }
       },
       error: function (xhr, status, err) {
-         console.error(adminURL, status, err.toString());
+         $("#usernameExists").prop("style","display:inline");
+         $("#usernameForm").addClass("has-warning");
       }
    }).then(function(){
       $('#myModal').modal('hide');
@@ -99,7 +105,7 @@ function deleteUser(userIndex){
          users.splice(userIndex, 1);
       },
       error: function (xhr, status, err) {
-         console.error(this.props.url, status, err.toString());
+         console.error(adminURL+username, status, err.toString());
       }
    }).then(function(){
       $('#myModal').modal('hide');
@@ -181,6 +187,8 @@ function editModal(index){
    $('#attributesInputBox').prop("value", attributes)
    $('#addEditSaveButton').attr("onclick", "editButton("+index+")")
                             .prop("style", "display: inline");
+
+   $("#addEditSaveButton").prop("disabled", false);
 }
 
 function addModal(){
@@ -198,6 +206,8 @@ function activeCheck(index){
    postUser(users[index], index)
    console.log(users[index].get("isActive"))
 }
+
+
 
 function deleteButton(index){
    deleteUser(index);
@@ -241,6 +251,7 @@ function addButton(){
    var username = $("#usernameInput").val();
    var password = $("#passwordInput").val();
    var attributes = '{' + $('#attributesInputBox').val() + '}';
+   var lastLogin = "Not available";
 
    //Check to see if username and password exist. If not put a warning on the input box
 
@@ -252,6 +263,7 @@ function addButton(){
    user.set("username", username);
    user.set("password", password);
    user.set("isActive", true);
+   user.set("lastLogin", lastLogin)
 
    postUser(user)
 }
@@ -268,6 +280,51 @@ function cancelButton(){
    $('#usernameInput').prop("value", null);
    $("#passwordInput").prop("value", null);
    $("#attributesInputBox").prop("value", null);
+
+   $("#addEditSaveButton").prop("disabled", true);
+   $("#attributesHelp").prop("style","display:none")
+   $("#passwordHelp").prop("style","display:none")
+   $("#usernameHelp").prop("style","display:none")
+   $("#usernameExists").prop("style","display:none");
+}
+
+function inputValid(){
+   var username = $("#usernameInput").val();
+   var password = $("#passwordInput").val();
+   var attributes = '{' + $('#attributesInputBox').val() + '}';
+   var inEditModal = $("#editUserHeader").is(":visible");
+
+   if($("#editUserHeader").is(":visible")){
+      console.log(true)
+   }
+
+   $("#attributesHelp").prop("style","display:none")
+   $("#passwordHelp").prop("style","display:none")
+   $("#usernameHelp").prop("style","display:none")
+   $("#usernameExists").prop("style","display:none");
+
+   $("#usernameForm").removeClass("has-warning");
+   if(username === ""){
+      $("#usernameHelp").prop("style","display:inline")
+      $("#usernameForm").addClass("has-warning");
+   }
+
+   $("#passwordForm").removeClass("has-warning");
+   if(password === "" && !inEditModal){
+      $("#passwordHelp").prop("style","display:inline")
+      $("#passwordForm").addClass("has-warning");
+   }
+
+   $("#attributesForm").removeClass("has-warning");
+   if(!testJSON(attributes)){
+      $("#attributesHelp").prop("style","display:inline")
+      $("#attributesForm").addClass("has-warning");
+   }
+
+   $("#addEditSaveButton").prop("disabled", true);
+   if(testJSON(attributes) && ((username && password) || inEditModal)){
+      $("#addEditSaveButton").prop("disabled", false);
+   }
 }
 
 function testJSON(text){
