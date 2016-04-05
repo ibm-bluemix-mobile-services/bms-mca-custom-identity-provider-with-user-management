@@ -8,11 +8,27 @@
    <title>Custom Identity Provider with User Management</title>
 
    <!-- Bootstrap -->
-   <link href="bootstrap-3.3.6-dist/css/bootstrap.min.css" rel="stylesheet">
+   <link href="./css/bootstrap-3.3.6-dist/css/bootstrap.min.css" rel="stylesheet">
+   <!--Custom Sylesheets-->
+   <link href="./css/signin.css" rel="stylesheet">
+
+   <script   src="https://code.jquery.com/jquery-2.2.2.min.js"   integrity="sha256-36cp2Co+/62rEAAYHLmRCPIych47CvdM+uTBJwSzWjI="   crossorigin="anonymous"></script>
+   <script   src="./js/index.js"></script>
 
 </head>
 <body>
-<h1>Hello, world!</h1>
+   <div id="signin" class="container">
+
+      <form class="form-signin" id="singinForm">
+         <h2 class="form-signin-heading">Please sign in</h2>
+         <label for="inputEmail" class="sr-only">Email address</label>
+         <input type="text" id="inputUsername" class="form-control" placeholder="Admin Username" required autofocus>
+         <label for="inputPassword" class="sr-only">Password</label>
+         <input type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+         <button class="btn btn-lg btn-primary btn-block" type="submit" id="singinButton">Sign in</button>
+      </form>
+
+   </div> <!-- /container -->
 
 <!--&lt;!&ndash; jQuery (necessary for Bootstrap's JavaScript plugins) &ndash;&gt;-->
 <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>-->

@@ -1,0 +1,99 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>USERS</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="./css/bootstrap-3.3.6-dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="./css/users.css" rel="stylesheet">
+    <script   src="https://code.jquery.com/jquery-2.2.2.min.js"   integrity="sha256-36cp2Co+/62rEAAYHLmRCPIych47CvdM+uTBJwSzWjI="   crossorigin="anonymous"></script>
+
+    <script   src="./js/bootstrap.min.js"></script>
+    <script   src="./js/users.js"></script>
+
+  </head>
+
+  <body>
+
+     <div class="container">
+
+        <h2 class="sub-header">Users</h2>
+            <div class="table-responsive">
+               <table class="table table-striped">
+                  <thead>
+                     <tr>
+                        <th>Username</th>
+                        <th>Active</th>
+                        <th>Last Login</th>
+                        <th></th>
+                        <th></th>
+                     </tr>
+                  </thead>
+                  <tbody id="tableBody">
+                     <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>
+                           <button class="btn btn-primary" data-toggle="modal" data-target="#myModal" onclick="addModal()">Add User</button>
+                        </td>
+                     </tr>
+                  </tbody>
+                  <tfoot>
+                     <tr></tr>
+                  </tfoot>
+               </table>
+            </div>
+
+            <!-- Modal -->
+            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+               <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                     <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" style="display: none" id="deleteUserHeader">Delete User</h4>
+                        <h4 class="modal-title" style="display: none" id="editUserHeader">Edit User</h4>
+                        <h4 class="modal-title" style="display: none" id="addUserHeader">Add User</h4>
+                     </div>
+                     <div class="modal-body" id="modalBody">
+                        <p id="deleteUser" style="display: none"></p>
+                        <div id="addEditUserForm" style="display: none">
+                           <form>
+                              <div class="form-group">
+                                 <label for="usernameInput">Username</label>
+                                 <input type="text" class="form-control" id="usernameInput" placeholder="Username">
+                              </div>
+                              <div class="form-group">
+                                 <label for="exampleInputPassword1">Password</label>
+                                 <input type="password" class="form-control" id="passwordInput" placeholder="Password">
+                              </div>
+                              <div class="form-group">
+                                 <label for="attributesInputBox">Attributes</label>
+                                 <p>{</p><textarea class="form-control" rows="3" id="attributesInputBox" placeholder="key:'value',key2:'value2'"></textarea><p>}</p>
+                              </div>
+                           </form>
+                        </div>
+                     </div>
+                     <div class="modal-footer" id="modalFooter">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" style="display: none" id="addEditSaveButton">Save User</button>
+                        <button type="button" class="btn btn-danger" style="display: none" id="deleteUserButton">Delete User</button>
+                     </div>
+                  </div>
+               </div>
+            </div>
+
+    </div> <!-- /container -->
+  </body>
+</html>
