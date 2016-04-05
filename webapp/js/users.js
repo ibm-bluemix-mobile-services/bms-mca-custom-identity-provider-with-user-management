@@ -72,16 +72,16 @@ function postUser(user, userIndex){
       accept: 'text/html',
       data: JSON.stringify(user.toJSON()),
       success: function (data) {
-                  if(typeof userIndex == 'undefined'){
-                     users.push(user);
-                  }else{
-                     var username = user.get("username") || users[userIndex].get("username");
-                     var isActive = user.get("isActive") || users[userIndex].get("isActive");
-                     var attributes = user.get("attributes") || users[userIndex].get("attributes");
-                     users[userIndex].set("username", username);
-                     users[userIndex].set("isActive", isActive);
-                     users[userIndex].set("attributes", attributes);
-                  }
+         if(typeof userIndex == 'undefined'){
+            users.push(user);
+         }else{
+            var username = user.get("username") || users[userIndex].get("username");
+            var isActive = user.get("isActive") || users[userIndex].get("isActive");
+            var attributes = user.get("attributes") || users[userIndex].get("attributes");
+            users[userIndex].set("username", username);
+            users[userIndex].set("isActive", isActive);
+            users[userIndex].set("attributes", attributes);
+         }
       },
       error: function (xhr, status, err) {
          $("#usernameExists").prop("style","display:inline");
@@ -162,7 +162,7 @@ function destroyTable(){
 }
 
 function deleteModal(index){
-   cancelButton();
+   reset();
    $("#deleteUserHeader").prop("style", "display: inline");
    $("#deleteUser").prop("style", "display: inline")
                      .text("Are you sure you want to delete "+users[index].get("username") +"?");
@@ -173,7 +173,7 @@ function deleteModal(index){
 
 function editModal(index){
    //Make sure our Modal is cleared before we construct it
-   cancelButton();
+   reset();
    $("#editUserHeader").prop("style", "display: inline")
 
    //Creating our attributes object to put into our textarea
@@ -192,7 +192,7 @@ function editModal(index){
 }
 
 function addModal(){
-   cancelButton();
+   reset();
    $("#addUserHeader").prop("style", "display: inline-block")
 
    //User Handlebars.js to create template
@@ -268,7 +268,7 @@ function addButton(){
    postUser(user)
 }
 
-function cancelButton(){
+function reset(){
    $("#deleteUserHeader").prop("style", "display: none")
    $("#editUserHeader").prop("style", "display: none")
    $("#addUserHeader").prop("style", "display: none")
@@ -325,6 +325,10 @@ function inputValid(){
    if(testJSON(attributes) && ((username && password) || inEditModal)){
       $("#addEditSaveButton").prop("disabled", false);
    }
+}
+
+function logout(){
+   window.location = "/";
 }
 
 function testJSON(text){
