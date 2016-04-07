@@ -8,6 +8,8 @@ applications:
   timeout: 180
 env:
   NODE_MODULES_CACHE: false
+  ADMIN_USERNAME: 
+  ADMIN_PASSWORD: 
   # CLOUDANT_ACCOUNT:
   # CLOUDANT_API_KEY:
   # CLOUDANT_API_PASSWORD:
