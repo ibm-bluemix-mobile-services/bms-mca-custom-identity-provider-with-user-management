@@ -2,7 +2,13 @@ var users = [];
 var adminURL = '/api/admin/users';
 var tableRowTemplate;
 $(document).ready(function() {
-    getUsers();
+	$.blockUI.defaults.css.borderRadius = "10px";
+	$.blockUI.defaults.css.border = "2px solid #aaa";
+	$.blockUI.defaults.message = "<h2>Loading, please wait...</h2>";
+	$.blockUI.defaults.baseZ = 99999;
+	$(document).ajaxStart($.blockUI).ajaxStop($.unblockUI);
+
+	getUsers();
     $('#usernameInput').on('input', validateInput);
     $('#passwordInput').on('input', validateInput);
     $('#attributesInputBox').on('input', validateInput);

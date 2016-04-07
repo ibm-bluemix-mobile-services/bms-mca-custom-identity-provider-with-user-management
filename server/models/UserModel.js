@@ -1,3 +1,6 @@
+var moment = require('moment');
+const LAST_LOGIN_NOT_AVAILABLE = "Not available";
+
 function User(username, password, attributes, lastLogin, isActive){
 
 	const USERNAME = "username";
@@ -5,6 +8,7 @@ function User(username, password, attributes, lastLogin, isActive){
 	const ATTRIBUTES = "attributes";
 	const LASTLOGIN = "lastLogin";
 	const ISACTIVE = "isActive";
+
 
 	this[USERNAME] = username;
 	this[PASSWORD] = password;
@@ -27,18 +31,20 @@ function User(username, password, attributes, lastLogin, isActive){
 
 	this.toSafeJSON = function(){
 		var json = this.toJSON();
+		if (json.lastLogin != LAST_LOGIN_NOT_AVAILABLE) {
+			json.lastLogin = moment(json.lastLogin).fromNow();
+		}
 		delete json[PASSWORD];
 		return json;
 	}
 }
 
 User.fromJSON = function(json){
-
 	return new User(
 		json.username,
 		json.password,
 		json.attributes || {},
-		json.lastLogin || "Not available",
+		json.lastLogin || LAST_LOGIN_NOT_AVAILABLE,
 		json.isActive
 	);
 }

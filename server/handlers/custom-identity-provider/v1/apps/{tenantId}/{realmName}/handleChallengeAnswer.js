@@ -34,6 +34,7 @@ module.exports = {
 						attributes: user.attributes
 					}
 				};
+				usersFacade.updateUserLastLogin(user.username);
 				res.status(200).send(response);
 			} else {
 				res.status(200).json(challengeJson);
@@ -42,7 +43,7 @@ module.exports = {
 		}).catch(function(error){
 			logger.error(error);
 			res.status(200).json(challengeJson);
-
 		});
 	}
 }
+

@@ -7,7 +7,7 @@ module.exports = function(req, res, next){
 		next();
 	} else {
 		logger.debug("["+req.session.id+"] Access denied for ::", req.originalUrl);
-		if (req.originalUrl.indexOf(".html") > 0){
+		if (req.originalUrl.indexOf("users.html") > 0){
 			res.redirect("/");
 		} else {
 			res.status(401).send("Unauthorized");

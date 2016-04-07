@@ -1,6 +1,4 @@
 body {
-  padding-top: 40px;
-  padding-bottom: 40px;
   background-color: #eee;
 }
 
@@ -37,4 +35,15 @@ body {
   margin-bottom: 10px;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
+}
+
+#header{
+    background-color: #152935;
+    height: 51px;
+    line-height: 51px;
+    color:white;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    font-family: 'Droid Sans', sans-serif;
 }

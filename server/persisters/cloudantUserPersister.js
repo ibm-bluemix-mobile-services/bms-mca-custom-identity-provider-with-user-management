@@ -8,43 +8,30 @@ const User = require('./../models/UserModel');
 const ERROR = {
 	USERNAME_NOT_FOUND: "Username not found",
 	USERNAME_EXIST: "Username already exists",
-	CANT_READ_CREDENTIALS: "Can't read Cloudant credentials",
-	ENSURE_ENV_VARS_SET: "Ensure that following environment variables are set ::",
 	FAILED_CONNECTING: "There was a database connectivity error. Please retry again later."
 }
 
 function CloudantUserPersister(){
 
-	const CLOUDANT_ACCOUNT = "CLOUDANT_ACCOUNT";
-	const CLOUDANT_API_KEY = "CLOUDANT_API_KEY";
-	const CLOUDANT_API_PASSWORD = "CLOUDANT_API_PASSWORD";
 	var usersdb;
 
-	function init(){
+	function init(account, apiKey, apiPass, dbName){
 		logger.info("Initializing");
 		var deferred = Q.defer();
 
-		var cloudantAccount = process.env[CLOUDANT_ACCOUNT];
-		var cloudantApiKey = process.env[CLOUDANT_API_KEY];
-		var cloudantApiPassword = process.env[CLOUDANT_API_PASSWORD];
-
-		if (cloudantAccount == null || cloudantApiKey == null || cloudantApiPassword == null){
-			logger.fatal(ERROR.CANT_READ_CREDENTIALS, ERROR.ENSURE_ENV_VARS_SET, CLOUDANT_ACCOUNT, CLOUDANT_API_KEY, CLOUDANT_API_PASSWORD);
-			return Q.reject(ERROR.CANT_READ_CREDENTIALS);
-		}
-		logger.info("Attempting to use Cloudant account ::", cloudantAccount);
+		logger.info("Attempting to connect to Cloudant account ::", account);
 
 		Cloudant({
-			account:cloudantAccount,
-			key: cloudantApiKey,
-			password: cloudantApiPassword
+			account:account,
+			key: apiKey,
+			password: apiPass
 		}, function(err, cloudant){
 			if (err != null){
 				logger.fatal(ERROR.FAILED_CONNECTING, err);
 				return Q.reject(ERROR.FAILED_CONNECTING);
 			}
 			logger.info("Cloudant connection successfully established");
-			usersdb = cloudant.db.use('users');
+			usersdb = cloudant.db.use(dbName);
 		});
 
 		return deferred.promise;
@@ -139,6 +126,18 @@ function CloudantUserPersister(){
 		return deferred.promise;
 	}
 
+	function updateUserLastLogin(username, lastLogin){
+		usersdb.get(username, function(err, resp){
+			if (err) return;
+			var user = User.fromJSON(resp);
+			var payload = user.toJSON();
+			payload.lastLogin = lastLogin;
+			payload["_id"] = username;
+			payload["_rev"] = resp["_rev"];
+			usersdb.insert(payload);
+		});
+	}
+
 	function deleteUser(username){
 		var deferred = Q.defer();
 
@@ -188,7 +187,8 @@ function CloudantUserPersister(){
 		getUser:getUser,
 		addUser:addUser,
 		updateUser:updateUser,
-		deleteUser:deleteUser
+		deleteUser:deleteUser,
+		updateUserLastLogin:updateUserLastLogin
 	}
 
 }

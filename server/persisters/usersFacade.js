@@ -4,19 +4,43 @@ const logger = log4js.getLogger("UserFacade");
 const User = require(__base + '/server/models/UserModel');
 const Q = require('q');
 
+var ERROR = {
+	REVERTING_TO_INMEMDB: "Can't read Cloudant credentials, falling back to inMemDb. In order to use Cloudant make sure that the following environment variables are set ::",
+}
 function UsersFacade(){
 
 	var userPersister = null;
+
+	function init(){
+		logger.debug("init");
+		const CLOUDANT_ACCOUNT = "CLOUDANT_ACCOUNT";
+		const CLOUDANT_API_KEY = "CLOUDANT_API_KEY";
+		const CLOUDANT_API_PASSWORD = "CLOUDANT_API_PASSWORD";
+		const CLOUDANT_DB_NAME = "CLOUDANT_DB_NAME";
+
+		var cloudantAccount = process.env[CLOUDANT_ACCOUNT];
+		var cloudantApiKey = process.env[CLOUDANT_API_KEY];
+		var cloudantApiPassword = process.env[CLOUDANT_API_PASSWORD];
+		var cloudantDbName = process.env[CLOUDANT_DB_NAME];
+
+		if (cloudantAccount == null || cloudantApiKey == null || cloudantApiPassword == null || cloudantDbName == null){
+			logger.info(ERROR.REVERTING_TO_INMEMDB, CLOUDANT_ACCOUNT, CLOUDANT_API_KEY, CLOUDANT_API_PASSWORD, CLOUDANT_DB_NAME);
+			initForInMemDb();
+		} else {
+			initForCloudant(cloudantAccount, cloudantApiKey, cloudantApiPassword, cloudantDbName);
+		}
+
+	}
 
 	function initForInMemDb(){
 		logger.debug("initForInMemDb");
 		userPersister = require("./inMemUserPersister");
 	}
 
-	function initForCloudant(){
+	function initForCloudant(account, apiKey, apiPass, dbName){
 		logger.debug("initForCloudant");
 		userPersister = require("./cloudantUserPersister");
-		userPersister.init().then(function(res){
+		userPersister.init(account, apiKey, apiPass, dbName).then(function(res){
 			logger.info(res);
 		}).catch(function(err){
 			logger.error(err);
@@ -95,16 +119,21 @@ function UsersFacade(){
 		}).catch(function(error){
 			res.status(500).send(error);
 		})
-	}   
+	}
+
+	function updateUserLastLogin(username){
+		logger.debug("updateUserLastLogin ::", username);
+		userPersister.updateUserLastLogin(username, new Date());
+	}
 
 	return {
-		initForInMemDb: initForInMemDb,
-		initForCloudant: initForCloudant,
+		init: init,
 		getAllUsers:getAllUsers,
 		getUser:getUser,
 		addUser:addUser,
 		updateUser:updateUser,
-		deleteUser:deleteUser
+		deleteUser:deleteUser,
+		updateUserLastLogin: updateUserLastLogin
 	}
 }
 

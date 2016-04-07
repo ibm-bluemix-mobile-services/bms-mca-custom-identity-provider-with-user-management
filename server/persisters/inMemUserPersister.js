@@ -60,7 +60,15 @@ function InMemUserPersister(){
 			return deferred.reject(err);
 		});
 		return deferred.promise;
+	}
 
+	function updateUserLastLogin(username){
+		for (var i=0; i<users.length; i++){
+			var user = users[i];
+			if (user.username === username){
+				user.lastLogin = new Date();
+			}
+		}
 	}
 
 	function deleteUser(username){
@@ -81,8 +89,10 @@ function InMemUserPersister(){
 		getUser:getUser,
 		addUser:addUser,
 		updateUser:updateUser,
-		deleteUser:deleteUser
+		deleteUser:deleteUser,
+		updateUserLastLogin:updateUserLastLogin
 	}
+
 
 }
 module.exports = new InMemUserPersister();
