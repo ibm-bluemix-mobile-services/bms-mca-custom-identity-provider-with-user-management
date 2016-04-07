@@ -1,0 +1,43 @@
+body {
+  background-color: #eee;
+}
+
+td, th {
+    text-align: center;
+}
+
+tr > td {
+    line-height: 40px !important;
+}
+td > button {
+   width: 100%;
+}
+.userRow td {
+    width: 20%;
+}
+
+input[type='checkbox'] {
+    zoom:1.5;
+    transform:scale(1.5);
+    -ms-transform:scale(1.5);
+    -webkit-transform:scale(1.5);
+    -o-transform:scale(1.5);
+    -moz-transform:scale(1.5);
+    transform-origin:0 0;
+    -ms-transform-origin:0 0;
+    -webkit-transform-origin:0 0;
+    -o-transform-origin:0 0;
+    -moz-transform-origin:0 0;
+    -webkit-transform-origin:0 0;
+}
+
+#header{
+    background-color: #152935;
+    height: 51px;
+    line-height: 51px;
+    color:white;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    font-family: 'Droid Sans', sans-serif;
+}

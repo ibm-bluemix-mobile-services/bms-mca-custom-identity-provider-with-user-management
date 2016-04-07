@@ -1,0 +1,17 @@
+applications:
+- disk_quota: 512M
+  host: anton-custom-identity-provider-with-user-management
+  name: anton-custom-identity-provider-with-user-management
+  command: node .
+  instances: 1
+  memory: 512M
+  timeout: 180
+env:
+  NODE_MODULES_CACHE: false
+  ADMIN_USERNAME: 
+  ADMIN_PASSWORD: 
+  # CLOUDANT_ACCOUNT:
+  # CLOUDANT_API_KEY:
+  # CLOUDANT_API_PASSWORD:
+  # CLOUDANT_DB_NAME:
+

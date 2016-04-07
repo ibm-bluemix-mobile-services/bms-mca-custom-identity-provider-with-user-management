@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>User management console</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="bootstrap-3.3.6-dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/users.css" rel="stylesheet">
+    <script src="js/jquery-2.2.2.min.js"></script>
+    <script src="bootstrap-3.3.6-dist/js/bootstrap.min.js"></script>
+    <script src="js/handlebars-v4.0.5.js"></script>
+    <script src="js/jquery.blockUI.js"></script>
+    <script src="js/users.js"></script>
+
+<script id="tableRowTemplate" type="text/x-handlebars-template">
+    <tr class="userRow">
+        <td>{{username}}</td>
+        <td>
+            <input onclick="onUserActiveToggleClicked({{index}})" type="checkbox" {{isCheckedHelper isActive}}/>
+        </td>
+        <td>{{lastLogin}}</td>
+        <td>
+            <button class="btn btn-info" data-toggle="modal" data-target="#myModal" onclick="onEditUserButtonClicked({{index}})">Edit User</button>
+        </td>
+        <td>
+            <button class="btn btn-danger" data-toggle="modal" data-target="#myModal" onclick="onDeleteUserButtonClicked({{index}})">Delete User</button>
+        </td>
+    </tr>
+</script>
+
+
+</head>
+
+<body>
+<div id='header'>
+    <span class="logo__title">Custom Identity Provider with User Management</span>
+</div>
+
+
+<div class="container">
+    <h2 class="sub-header">Users</h2>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Username</th>
+                <th>Active</th>
+                <th>Last Login</th>
+                <th colspan="2">
+            </tr>
+            </thead>
+            <tbody id="tableBody">
+            <tr id="addUserButtonRow">
+                <td colspan="3">
+                <td>
+                    <a class="btn btn-default btn-block" href="/swagger-ui" target="_blank">API explorer</a>
+                </td>
+                <td>
+                    <button class="btn btn-primary btn-block" data-toggle="modal" data-target="#myModal" onclick="onAddUserButtonClicked()">Add User</button>
+                </td>
+            </tr>
+            </tbody>
+            <tfoot>
+            <tr></tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                         <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="modalUiHeader"></h4>
+                </div>
+                <div class="modal-body" id="modalBody">
+                    <p id="deleteUserConfirmation"></p>
+                    <div id="userDetailsForm">
+                        <form>
+                            <div class="form-group" id="usernameForm">
+                                <label for="usernameInput">Enter username (A..z-0..9) </label>
+                                <input type="text" class="form-control" id="usernameInput" placeholder="Username">
+                                <span id="usernameHelp" class="help-block">Username required, alphanumerals only</span>
+                            </div>
+                            <div class="form-group" id="passwordForm">
+                                <label for="passwordInput">Enter password</label>
+                                <input type="password" class="form-control" id="passwordInput" placeholder="Password">
+                                <span id="passwordHelp" class="help-block">Password required</span>
+                            </div>
+                            <div class="form-group" id="attributesForm">
+                                <label for="attributesInputBox">Enter attributes as JSON object</label>
+                                <textarea class="form-control" rows="10" id="attributesInputBox" placeholder="{key:'value',key2:'value2'}"></textarea>
+                                <span id="attributesHelp" class="help-block">You need proper JSON. ex: "key1":"value1", "key2":"value2"</span>
+                            </div>
+                            <span id="errorMessage" class="help-block"></span>
+                        </form>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary dynamicButton" id="saveUserButton">Save</button>
+                    <button type="button" class="btn btn-danger dynamicButton" id="deleteUserButton">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div> <!-- /container -->
+</body>
+</html>

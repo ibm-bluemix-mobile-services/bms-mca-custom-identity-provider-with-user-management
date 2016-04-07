@@ -1,0 +1,486 @@
+{
+	"swagger": "2.0",
+	"info": {
+		"title": "Custom Identity Provider with User Management",
+		"version": "0.0.1",
+		"license": {
+			"name": "Apache-2.0"
+		}
+	},
+	"basePath": "/api",
+	"schemes": [
+		"http",
+		"https"
+	],
+	"consumes": [
+		"application/json"
+	],
+	"produces": [
+		"application/json"
+	],
+	"paths": {
+		"/login": {
+			"post": {
+				"summary": "Validates credentials and creates an authenticated session",
+				"tags": [
+					"login"
+				],
+				"parameters": [
+					{
+						"$ref": "#/parameters/loginRequestBody"
+					}
+				],
+				"responses": {
+					"200": {
+						"$ref": "#/responses/authenticationSuccess"
+					},
+					"401": {
+						"$ref": "#/responses/unauthorized"
+					}
+				}
+			}
+		},
+		"/admin/users": {
+			"get": {
+				"summary": "Returns an array of all user profiles",
+				"tags": [
+					"management"
+				],
+				"responses": {
+					"200": {
+						"$ref": "#/responses/userProfilesGet"
+					},
+					"401": {
+						"$ref": "#/responses/unauthorized"
+					},
+					"500": {
+						"$ref": "#/responses/serverError"
+					}
+				}
+			},
+			"put": {
+				"summary": "Creates a new user profile",
+				"tags": [
+					"management"
+				],
+				"parameters": [
+					{
+						"$ref": "#/parameters/userProfileNew"
+					}
+				],
+				"responses": {
+					"200": {
+						"$ref": "#/responses/userProfilesGet"
+					},
+					"401": {
+						"$ref": "#/responses/unauthorized"
+					},
+					"500": {
+						"$ref": "#/responses/serverError"
+					}
+				}
+			}
+		},
+		"/admin/users/{username}": {
+			"post": {
+				"summary": "Updates an existing user profile",
+				"tags": [
+					"management"
+				],
+				"parameters": [
+					{
+						"$ref": "#/parameters/username"
+					},
+					{
+						"$ref": "#/parameters/userProfileUpdate"
+					}
+				],
+				"responses": {
+					"200": {
+						"$ref": "#/responses/userProfilesGet"
+					},
+					"401": {
+						"$ref": "#/responses/unauthorized"
+					},
+					"500": {
+						"$ref": "#/responses/serverError"
+					}
+				}
+			},
+			"delete": {
+				"summary": "Deletes a specified user profile",
+				"tags": [
+					"management"
+				],
+				"parameters": [
+					{
+						"$ref": "#/parameters/username"
+					}
+				],
+				"responses": {
+					"200": {
+						"$ref": "#/responses/userProfilesGet"
+					},
+					"401": {
+						"$ref": "#/responses/unauthorized"
+					},
+					"500": {
+						"$ref": "#/responses/serverError"
+					}
+				}
+			}
+		},
+		"/custom-identity-provider/v1/apps/{tenantId}/{realmName}/startAuthorization": {
+			"post": {
+				"summary": "The startAuthorization API is used as a first step of authentication process. A custom identity provider must respond with either \"challenge\", \"success\", or \"failure\" status. To allow for a maximum flexibility of the authentication process, a custom identity provider has access to all HTTP headers that are sent by a mobile client in the request body. A custom identity provider might respond with an authentication challenge, immediate success or failure.",
+				"tags": [
+					"custom-identity-provider"
+				],
+				"parameters": [
+					{
+						"$ref": "#/parameters/startAuthorizationRequestBody"
+					},
+					{
+						"$ref": "#/parameters/tenantId"
+					},
+					{
+						"$ref": "#/parameters/realmName"
+					}
+				],
+				"responses": {
+					"200": {
+						"$ref": "#/responses/customIdentityProviderResponse"
+					},
+					"401": {
+						"$ref": "#/responses/unauthorized"
+					},
+					"500": {
+						"$ref": "#/responses/serverError"
+					}
+				}
+			}
+		},
+		"/custom-identity-provider/v1/apps/{tenantId}/{realmName}/handleChallengeAnswer": {
+			"post": {
+				"summary": "The handleChallengeAnswer API handles an authentication challenge response from the mobile clients. Similarly to the startAuthorization API, the handleChallengeAnswer API should respond with either 'challenge', 'success', or 'failure' status and has access to all HTTP headers that are sent by the mobile client. In addition to the mobile client request headers, the body of handleChallengeAnswer request also includes the stateId and challengeAnswer properties.",
+				"tags": [
+					"custom-identity-provider"
+				],
+				"parameters": [
+					{
+						"$ref": "#/parameters/handleChallengeAnswerRequestBody"
+					},
+					{
+						"$ref": "#/parameters/tenantId"
+					},
+					{
+						"$ref": "#/parameters/realmName"
+					}
+				],
+				"responses": {
+					"200": {
+						"$ref": "#/responses/customIdentityProviderResponse"
+					},
+					"401": {
+						"$ref": "#/responses/unauthorized"
+					},
+					"500": {
+						"$ref": "#/responses/serverError"
+					}
+				}
+			}
+		}
+	},
+	"definitions": {
+		"loginRequestBody": {
+			"type": "object",
+			"required": [
+				"username",
+				"password"
+			],
+			"properties": {
+				"username": {
+					"type": "string",
+					"default":"demo"
+				},
+				"password": {
+					"type": "string",
+					"default":"demo"
+				}
+			},
+			"description": "Used to authentication users trying to access user management console"
+		},
+		"userProfileBase": {
+			"type": "object",
+			"properties": {
+				"username": {
+					"type": "string",
+					"default":"john.smith"
+				},
+				"attributes": {
+					"type": "object",
+					"default":{
+						"foo":"bar"
+					}
+				},
+				"isActive": {
+					"type": "boolean",
+					"default": true
+				}
+			}
+		},
+		"password": {
+			"type": "object",
+			"properties": {
+				"password": {
+					"type": "string",
+					"default":"p4ssw0rd"
+				}
+			}
+		},
+		"lastLogin": {
+			"type": "object",
+			"properties": {
+				"lastLogin": {
+					"type": "string",
+					"default": "10 days ago"
+				}
+			}
+		},
+		"userProfileGet": {
+			"allOf": [
+				{
+					"$ref": "#/definitions/userProfileBase"
+				},
+				{
+					"$ref": "#/definitions/lastLogin"
+				}
+			]
+		},
+		"userProfileUpdate": {
+			"allOf": [
+				{
+					"$ref": "#/definitions/userProfileBase"
+				},
+				{
+					"$ref": "#/definitions/password"
+				}
+			]
+		},
+		"userProfileNew": {
+			"allOf": [
+				{
+					"$ref": "#/definitions/userProfileUpdate"
+				}
+			],
+			"required": [
+				"username",
+				"password"
+			]
+		},
+		"userProfilesGet": {
+			"type": "array",
+			"items": {
+				"$ref": "#/definitions/userProfileGet"
+			}
+		},
+		"startAuthorizationRequestBody": {
+			"type": "object",
+			"required": [
+				"headers"
+			],
+			"properties": {
+				"headers": {
+					"type": "object",
+					"default":{
+						"headerName":"headerValue"
+					}
+				}
+			}
+		},
+		"handleChallengeAnswerRequestBody": {
+			"type": "object",
+			"required": [
+				"headers",
+				"challengeAnswer"
+			],
+			"properties": {
+				"headers": {
+					"type": "object",
+					"default":{
+						"headerName":"headerValue"
+					}
+				},
+				"challengeAnswer": {
+					"type": "object",
+					"default":{
+						"username":"john.smith",
+						"password":"p4ssw0rd",
+						"foo":"bar"
+					}
+				}
+			}
+		},
+		"customIdentityProviderResponse": {
+			"type": "object",
+			"required": [
+				"status"
+			],
+			"properties": {
+				"status": {
+					"type": "string",
+					"description": "Specifies 'success', 'challenge', or 'failure' of the request",
+					"default":"challenge"
+				},
+				"stateId": {
+					"type": "string",
+					"description": "Specifies a randomly generated string identifier to identify the authentication session with the mobile client. This attribute can be omitted if the custom identity provider does not store any state.",
+					"default":"some-random-guid"
+				},
+				"challenge": {
+					"type": "object",
+					"description": "Specifies a JSON object that represents an authentication challenge to be sent back to the mobile client. This attribute is only sent to client if status is set to 'challenge'.",
+					"default":{
+						"text":"Enter username and password"
+					}
+				},
+				"userIdentity": {
+					"$ref": "#/definitions/customUserIdentity"
+				}
+			},
+			"description": "An object returned by custom identity provider."
+		},
+		"customUserIdentity": {
+			"type": "object",
+			"required": [
+				"userName",
+				"displayName"
+			],
+			"properties": {
+				"userName": {
+					"type": "string",
+					"default":"john.smith"
+				},
+				"displayName": {
+					"type": "string",
+					"default":"john.smith"
+				},
+				"attributes": {
+					"type": "object",
+					"default":{
+						"foo": "bar"
+					}
+				}
+			},
+			"description": "Specifies a JSON object that represents a user identity. The user identity consists of properties such as userName, displayName, and attributes. This property is only sent to the mobile client if the status is set to 'success'."
+		}
+	},
+	"parameters": {
+		"loginRequestBody": {
+			"name": "body",
+			"in": "body",
+			"required": true,
+			"description": "JSON object with username and password",
+			"schema": {
+				"$ref": "#/definitions/loginRequestBody"
+			}
+		},
+		"userProfileNew": {
+			"name": "body",
+			"in": "body",
+			"required": true,
+			"description": "JSON object containing a new user profile",
+			"schema": {
+				"$ref": "#/definitions/userProfileNew"
+			}
+		},
+		"userProfileUpdate": {
+			"name": "body",
+			"in": "body",
+			"required": true,
+			"description": "JSON object containing updates to user profile",
+			"schema": {
+				"$ref": "#/definitions/userProfileUpdate"
+			}
+		},
+		"username": {
+			"name": "username",
+			"in": "path",
+			"description": "username",
+			"required": true,
+			"type": "string"
+		},
+		"tenantId": {
+			"name": "tenantId",
+			"in": "path",
+			"required": true,
+			"description": "The tenantId of the Mobile Client Access Service instance",
+			"type": "string"
+		},
+		"realmName": {
+			"name": "realmName",
+			"in": "path",
+			"required": true,
+			"description": "The authentication realm name as configured the in Mobile Client Access Dashboard",
+			"type": "string"
+		},
+		"startAuthorizationRequestBody": {
+			"name": "body",
+			"in": "body",
+			"required": true,
+			"description": "startAuthorization request body",
+			"schema": {
+				"$ref": "#/definitions/startAuthorizationRequestBody"
+			}
+		},
+		"handleChallengeAnswerRequestBody": {
+			"name": "body",
+			"in": "body",
+			"required": true,
+			"description": "handleChallengeAnswer request body",
+			"schema": {
+				"$ref": "#/definitions/handleChallengeAnswerRequestBody"
+			}
+		}
+	},
+	"tags": [
+		{
+			"name": "login",
+			"description": "User Management Console login"
+		},
+		{
+			"name": "management",
+			"description": "User Management APIs"
+		},
+		{
+			"name": "custom-identity-provider",
+			"description": "Custom identity provider API"
+		}
+	],
+	"responses": {
+		"authenticationSuccess": {
+			"description": "Authentication Success"
+		},
+		"serverError": {
+			"description": "Server Error",
+			"schema": {
+				"type": "string"
+			}
+		},
+		"unauthorized": {
+			"description": "Unauthorized"
+		},
+		"userProfilesGet": {
+			"description": "An array of user profile objects",
+			"schema": {
+				"$ref": "#/definitions/userProfilesGet"
+			}
+		},
+		"customIdentityProviderResponse": {
+			"description": "An object returned by custom identity provider.",
+			"schema": {
+				"$ref": "#/definitions/customIdentityProviderResponse"
+			}
+		}
+	}
+}
