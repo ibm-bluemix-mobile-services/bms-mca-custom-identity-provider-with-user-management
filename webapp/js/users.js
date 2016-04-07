@@ -1,347 +1,214 @@
 var users = [];
-const adminURL = '/api/admin/users';
+var adminURL = '/api/admin/users';
+var tableRowTemplate;
+$(document).ready(function() {
+    getUsers();
+    $('#usernameInput').on('input', validateInput);
+    $('#passwordInput').on('input', validateInput);
+    $('#attributesInputBox').on('input', validateInput);
+	var templateSource = $("#tableRowTemplate").html();
+	tableRowTemplate = Handlebars.compile(templateSource);
+	Handlebars.registerHelper('isCheckedHelper', function(isActive){
+		if (isActive){
+			return new Handlebars.SafeString('checked="checked"');
+		} else {
+			return "";
+		}
 
-//Class for Users
-function User() {
-   var user = {
-        attributes: {},
-
-        // set multiple attributes
-        set: function( attr_name, val ) {
-          this.attributes[ attr_name ] = val;
-        },
-
-        //get a single attribute
-        get: function( attr_name ) {
-          return this.attributes[ attr_name ];
-        },
-
-        //get User attributes in JSON format
-        toJSON: function(){
-           return this.attributes;
-        }
-      };
-  return user;
-}
-
-$( document ).ready(function(){
-   getUsers();
-   $('#usernameInput').on('input', inputValid);
-   $('#passwordInput').on('input', inputValid);
-   $('#attributesInputBox').on('input', inputValid);
+	});
 });
 
-function getUsers(){
-   $.ajax({
-      url: adminURL,
-      accepts: 'application/json',
-      success: function(response) {
-         console.log(response);
-         for (i = 0; i < response.length; i++){
-            var user = new User();
-            user.set("username", response[i].username)
-            user.set("isActive", response[i].isActive)
-            user.set("attributes", response[i].attributes)
-            user.set("lastLogin", response[i].lastLogin)
-            users.push(user);
-         }
-      },
-      error: function(xhr, status, err) {
-         console.error(adminURL, status, err.toString());
-      }
-   }).done(function(){
-      createTable();
-   });
+function getUsers() {
+    $.ajax({
+        url: adminURL,
+        accepts: 'application/json',
+    }).done(function(response) {
+        users = response || [];
+        createTable();
+    }).fail(function(xhr, status, err) {
+        console.error(adminURL, status, err.toString());
+    });
 }
 
-function postUser(user, userIndex){
-   var methodType;
-   var userURI = '';
-
-   if( typeof userIndex == 'undefined'){
-      methodType = "PUT"
-   } else {
-      methodType = "POST"
-      userURI = '/'+users[userIndex].get("username");
-   }
-
-   $.ajax({
-      url: adminURL + userURI,
-      method: methodType,
-      contentType: "application/json",
-      accept: 'text/html',
-      data: JSON.stringify(user.toJSON()),
-      success: function (data) {
-         if(typeof userIndex == 'undefined'){
-            users.push(user);
-         }else{
-            var username = user.get("username") || users[userIndex].get("username");
-            var isActive = user.get("isActive") || users[userIndex].get("isActive");
-            var attributes = user.get("attributes") || users[userIndex].get("attributes");
-            users[userIndex].set("username", username);
-            users[userIndex].set("isActive", isActive);
-            users[userIndex].set("attributes", attributes);
-         }
-      },
-      error: function (xhr, status, err) {
-         $("#usernameExists").prop("style","display:inline");
-         $("#usernameForm").addClass("has-warning");
-      }
-   }).then(function(){
-      $('#myModal').modal('hide');
-      destroyTable();
-   }).done(function(){
-      createTable();
-   });
+function createTable() {
+	$(".userRow").remove();
+    $.each(users, function(index, user) {
+        user.index = index;
+	    $(tableRowTemplate(user)).insertBefore("#addUserButtonRow");
+    });
 }
 
-function deleteUser(userIndex){
-   var username = users[userIndex].get("username");
-   $.ajax({
-      url: adminURL + '/' +username,
-      method: "DELETE",
-      accept: 'text/html',
-      success: function(data){
-         users.splice(userIndex, 1);
-      },
-      error: function (xhr, status, err) {
-         console.error(adminURL+username, status, err.toString());
-      }
-   }).then(function(){
-      $('#myModal').modal('hide');
-      destroyTable();
-   }).done(function(){
-      createTable();
-   });
+// ----------------- Add new user ----------------
+function onAddUserButtonClicked() {
+    resetModalUi();
+	$("#modalUiHeader").text("Add user");
+    $('#userDetailsForm').show();
+    $('#saveUserButton').attr("onclick", "onModalAddUserButtonClicked()").show();
 }
 
-function createTable(){
-   for (var i = 0, len = users.length; i < len; ++i) {
-      var tr = $("<tr/>");
-      var td1 = $("<td/>").text(users[i].get("username"));
-
-      var checkBox = $("<input/>").attr({
-                                       "onclick":"activeCheck("+i+")",
-                                       "type": "checkbox",
-                                       "checked":users[i].get("isActive")
-                                    });
-      var td2 = $("<td/>").append(checkBox);
-
-
-
-      var td3 = $("<td/>").text(users[i].get("lastLogin"));
-
-      var buttonEdit = $("<button/>").addClass("btn btn-info")
-                                       .text("Edit User")
-                                       .attr({
-                                          "data-toggle": "modal",
-                                          "data-target": "#myModal",
-                                          "onclick": "editModal("+i+")"
-                                       });
-      var td4 = $("<td/>").append(buttonEdit);
-
-      var buttonDelete = $("<button/>").addClass("btn btn-danger")
-                                       .text("Delete User")
-                                       .attr({
-                                          "data-toggle": "modal",
-                                          "data-target": "#myModal",
-                                          "onclick": "deleteModal("+i+")"
-                                       });
-      var td5 = $("<td/>").append(buttonDelete);
-
-      tr.append(td1, td2, td3, td4, td5);
-      $(tr).prependTo('#tableBody');
-   }
-
+function onModalAddUserButtonClicked() {
+	$("#errorMessage").hide();
+	var user = {
+		username: $("#usernameInput").val(),
+		password: $("#passwordInput").val(),
+		attributes: JSON.parse($('#attributesInputBox').val() || "{}")
+	}
+	$.ajax({
+		url: adminURL,
+		method: "PUT",
+		contentType: "application/json",
+		data: JSON.stringify(user)
+	}).success(function(response, status, xhr){
+		console.log("success")
+		users = response;
+		$('#myModal').modal('hide');
+		createTable();
+	}).fail(function(xhr, status, err){
+		console.error(xhr.responseText);
+		$("#errorMessage").text(xhr.responseText).show();
+	})
 }
 
-function destroyTable(){
-   var addButton = $( "#tableBody tr" ).slice(-1).remove();
-   $( "#tableBody" ).empty();
-   $( "#tableBody" ).append(addButton);
+// ----------------- Delete user ----------------
+function onDeleteUserButtonClicked(index) {
+	resetModalUi();
+	$("#modalUiHeader").text("Delete user");
+	$("#deleteUserConfirmation").text("Are you sure you want to delete " + users[index].username + " ?").show();
+	$("#deleteUserButton").attr("onclick", "onModalDeleteUserButtonClicked(" + index + ")").show();;
 }
 
-function deleteModal(index){
-   reset();
-   $("#deleteUserHeader").prop("style", "display: inline");
-   $("#deleteUser").prop("style", "display: inline")
-                     .text("Are you sure you want to delete "+users[index].get("username") +"?");
-
-   $("#deleteUserButton").prop("style", "display: inline")
-                           .attr("onclick", "deleteButton("+index+")");
+function onModalDeleteUserButtonClicked(userIndex) {
+	var username = users[userIndex].username;
+	$.ajax({
+		url: adminURL + '/' + username,
+		method: "DELETE"
+	}).success(function (response, status, xhr) {
+		console.log("success")
+		users = response;
+		$('#myModal').modal('hide');
+		createTable();
+	}).fail(function (xhr, status, err) {
+		console.error(xhr.responseText);
+	});
 }
 
-function editModal(index){
-   //Make sure our Modal is cleared before we construct it
-   reset();
-   $("#editUserHeader").prop("style", "display: inline")
+// ----------------- Edit user ----------------
+function onEditUserButtonClicked(index) {
+    //Make sure our Modal is cleared before we construct it
+	resetModalUi();
+	$("#modalUiHeader").text("Edit user");
 
-   //Creating our attributes object to put into our textarea
-   var attributes = JSON.stringify(users[index].get("attributes")) || ""
-   attributes = attributes.replaceAll("\\", "");
-   attributes = attributes.slice(2, -2);
-
-   //Show our Edit User form in our Modal
-   $('#addEditUserForm').prop("style", "display: inline");
-   $('#usernameInput').prop("value", users[index].get("username"));
-   $('#attributesInputBox').prop("value", attributes)
-   $('#addEditSaveButton').attr("onclick", "editButton("+index+")")
-                            .prop("style", "display: inline");
-
-   $("#addEditSaveButton").prop("disabled", false);
-}
-
-function addModal(){
-   reset();
-   $("#addUserHeader").prop("style", "display: inline-block")
-
-   //User Handlebars.js to create template
-   $('#addEditUserForm').prop("style", "display: inline");
-   $('#addEditSaveButton').attr("onclick", "addButton()")
-                            .prop("style", "display: inline");
-}
-
-function activeCheck(index){
-   users[index].set("isActive", !users[index].get("isActive"));
-   postUser(users[index], index)
-   console.log(users[index].get("isActive"))
+	$('#userDetailsForm').show();
+	$('#saveUserButton').attr("onclick", "onModalAddUserButtonClicked()").show().attr("disabled",false);
+	$('#usernameInput').val(users[index].username);
+    $('#attributesInputBox').val(JSON.stringify(users[index].attributes, null, 4));
+    $('#saveUserButton').attr("onclick", "onModalEditUserButtonClicked(" + index + ")").show();
 }
 
 
+function onModalEditUserButtonClicked(index) {
+	$("#errorMessage").hide();
+	var user = {
+		attributes: JSON.parse($('#attributesInputBox').val() || "{}")
+	};
+	var username = $("#usernameInput").val();
+	var password = $("#passwordInput").val();
 
-function deleteButton(index){
-   deleteUser(index);
-   $('#myModal').modal('hide');
-   destroyTable();
-   createTable();
+	if (username !== users[index].username){
+		user.username = username;
+	}
+
+	if (password !== ""){
+		user.password = password;
+	}
+
+	$.ajax({
+		url: adminURL + "/" + users[index].username,
+		method: "POST",
+		contentType: "application/json",
+		data: JSON.stringify(user)
+	}).success(function(response, status, xhr){
+		console.log("success")
+		users = response;
+		$('#myModal').modal('hide');
+		createTable();
+	}).fail(function(xhr, status, err){
+		console.error(xhr.responseText);
+		$("#errorMessage").text(xhr.responseText).show();
+	})
+
 }
 
-function editButton(index){
-   var user = new User();
-
-   user.set("username", users[index].get("username"))
-   if($("#usernameInput").val() !== undefined &&
-         users[index].get("username") !== $("#usernameInput").val()){
-      user.set("username", $("#usernameInput").val())
-   }
-
-   if($("#passwordInputBox").val() !== undefined){
-      users[index].set("username", $("#passwordInputBox").val())
-   }
-
-   var attributes = JSON.stringify(users[index].get("attributes")) || ""
-   attributes = attributes.replaceAll("\\", "");
-   attributes = attributes.slice(2, -2);
-
-   user.set("attributes", users[index].get("attributes"))
-   if($("#attributesInputBox").val() !== undefined
-      && $("#attributesInputBox").val() !== attributes){
-         attributes = '{' + $('#attributesInputBox').val() + '}';
-         if(testJSON(attributes)){
-            user.set("attributes", attributes)
-         }
-   }
-
-   postUser(user, index);
+function onUserActiveToggleClicked(index) {
+	var user = {
+		isActive: !users[index].isActive
+	};
+	$.ajax({
+		url: adminURL + "/" + users[index].username,
+		method: "POST",
+		contentType: "application/json",
+		data: JSON.stringify(user)
+	}).success(function(response, status, xhr){
+		console.log("success")
+		users = response;
+		$('#myModal').modal('hide');
+		createTable();
+	}).fail(function(xhr, status, err){
+		console.error(xhr.responseText);
+	})
 }
 
-function addButton(){
-   var user = new User();
-
-   var username = $("#usernameInput").val();
-   var password = $("#passwordInput").val();
-   var attributes = '{' + $('#attributesInputBox').val() + '}';
-   var lastLogin = "Not available";
-
-   //Check to see if username and password exist. If not put a warning on the input box
-
-   user.set("attribues", null);
-   if(testJSON(attributes)){
-      user.set("attributes", attributes);
-   }
-
-   user.set("username", username);
-   user.set("password", password);
-   user.set("isActive", true);
-   user.set("lastLogin", lastLogin)
-
-   postUser(user)
+function resetModalUi() {
+    var $modal = $("#myModal");
+	$modal.find("#modalBody").children().hide();
+    $modal.find(".dynamicButton").hide();
+	$modal.find(".help-block").hide();
+    $('#usernameInput').val("");
+    $("#passwordInput").val("");
+    $("#attributesInputBox").val("");
+	$("#saveUserButton").prop("disabled", true);
 }
 
-function reset(){
-   $("#deleteUserHeader").prop("style", "display: none")
-   $("#editUserHeader").prop("style", "display: none")
-   $("#addUserHeader").prop("style", "display: none")
-   $("#addEditUserForm").prop("style", "display: none")
-   $('#addEditSaveButton').prop("style", "display: none");
-   $("#deleteUserButton").prop("style", "display: none");
-   $("#deleteUser").prop("style", "display: none")
+function validateInput() {
+	var isEditMode = $("#modalUiHeader").text() === "Edit user";
+    var username = $("#usernameInput").val();
+	var password = $("#passwordInput").val();
+    var attributes = $('#attributesInputBox').val();
 
-   $('#usernameInput').prop("value", null);
-   $("#passwordInput").prop("value", null);
-   $("#attributesInputBox").prop("value", null);
+	var $modal = $("#myModal");
+	$modal.find(".help-block").hide();
 
-   $("#addEditSaveButton").prop("disabled", true);
-   $("#attributesHelp").prop("style","display:none")
-   $("#passwordHelp").prop("style","display:none")
-   $("#usernameHelp").prop("style","display:none")
-   $("#usernameExists").prop("style","display:none");
+    $("#usernameForm").removeClass("has-warning");
+    if (username === "" || !RegExp(/^[a-zA-Z0-9]+$/).test(username))
+    {
+        $("#usernameHelp").show();
+        $("#usernameForm").addClass("has-warning");
+    }
+
+    $("#passwordForm").removeClass("has-warning");
+    if (password === "" && !isEditMode) {
+        $("#passwordHelp").show();
+        $("#passwordForm").addClass("has-warning");
+    }
+
+    $("#attributesForm").removeClass("has-warning");
+    if (!isValidJsonOrEmpty(attributes)) {
+        $("#attributesHelp").show();
+        $("#attributesForm").addClass("has-warning");
+    }
+
+    var isInputValid = (isValidJsonOrEmpty(attributes) && (username && (password || isEditMode)));
+	$("#saveUserButton").prop("disabled", !isInputValid);
 }
 
-function inputValid(){
-   var username = $("#usernameInput").val();
-   var password = $("#passwordInput").val();
-   var attributes = '{' + $('#attributesInputBox').val() + '}';
-   var inEditModal = $("#editUserHeader").is(":visible");
-
-   if($("#editUserHeader").is(":visible")){
-      console.log(true)
-   }
-
-   $("#attributesHelp").prop("style","display:none")
-   $("#passwordHelp").prop("style","display:none")
-   $("#usernameHelp").prop("style","display:none")
-   $("#usernameExists").prop("style","display:none");
-
-   $("#usernameForm").removeClass("has-warning");
-   if(username === ""){
-      $("#usernameHelp").prop("style","display:inline")
-      $("#usernameForm").addClass("has-warning");
-   }
-
-   $("#passwordForm").removeClass("has-warning");
-   if(password === "" && !inEditModal){
-      $("#passwordHelp").prop("style","display:inline")
-      $("#passwordForm").addClass("has-warning");
-   }
-
-   $("#attributesForm").removeClass("has-warning");
-   if(!testJSON(attributes)){
-      $("#attributesHelp").prop("style","display:inline")
-      $("#attributesForm").addClass("has-warning");
-   }
-
-   $("#addEditSaveButton").prop("disabled", true);
-   if(testJSON(attributes) && ((username && password) || inEditModal)){
-      $("#addEditSaveButton").prop("disabled", false);
-   }
-}
-
-function logout(){
-   window.location = "/";
-}
-
-function testJSON(text){
-    try{
-        JSON.parse(text);
+function isValidJsonOrEmpty(text) {
+    if (text.length == 0){
         return true;
     }
-    catch (error){
+    try {
+        JSON.parse(text);
+        return true;
+    } catch (e) {
         return false;
     }
 }
-
-String.prototype.replaceAll = function(search, replacement) {
-    var target = this;
-    return target.split(search).join(replacement);
-};

@@ -2,37 +2,25 @@
 <html lang="en">
 <head>
    <meta charset="utf-8">
-   <meta http-equiv="X-UA-Compatible" content="IE=edge">
    <meta name="viewport" content="width=device-width, initial-scale=1">
-   <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
    <title>Custom Identity Provider with User Management</title>
 
-   <!-- Bootstrap -->
-   <link href="./css/bootstrap-3.3.6-dist/css/bootstrap.min.css" rel="stylesheet">
-   <!--Custom Sylesheets-->
-   <link href="./css/signin.css" rel="stylesheet">
+   <link href="css/bootstrap-3.3.6-dist/css/bootstrap.min.css" rel="stylesheet">
+   <link href="css/signin.css" rel="stylesheet">
 
-   <script   src="https://code.jquery.com/jquery-2.2.2.min.js"   integrity="sha256-36cp2Co+/62rEAAYHLmRCPIych47CvdM+uTBJwSzWjI="   crossorigin="anonymous"></script>
-   <script   src="./js/index.js"></script>
+   <script src="js/jquery-2.2.2.min.js"></script>
+   <script src="js/index.js"></script>
 
 </head>
 <body>
    <div id="signin" class="container">
-
       <form class="form-signin" id="singinForm">
-         <h2 class="form-signin-heading">Please sign in</h2>
-         <label for="inputEmail" class="sr-only">Email address</label>
-         <input type="text" id="inputUsername" class="form-control" placeholder="Admin Username" required autofocus>
-         <label for="inputPassword" class="sr-only">Password</label>
+         <h2 class="form-signin-heading">Admin login</h2>
+         <input type="text" id="inputUsername" class="form-control" placeholder="Username" required autofocus>
          <input type="password" id="inputPassword" class="form-control" placeholder="Password" required>
-         <button class="btn btn-lg btn-primary btn-block" type="submit" id="singinButton">Sign in</button>
+         <button class="btn btn-lg btn-primary btn-block" type="submit" id="loginButton">Login</button>
+         <a class="btn btn-lg btn-default btn-block" href="/swagger-ui" target="_blank">API explorer</a>
       </form>
-
-   </div> <!-- /container -->
-
-<!--&lt;!&ndash; jQuery (necessary for Bootstrap's JavaScript plugins) &ndash;&gt;-->
-<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>-->
-<!--&lt;!&ndash; Include all compiled plugins (below), or include individual files as needed &ndash;&gt;-->
-<!--<script src="js/bootstrap.min.js"></script>-->
+   </div>
 </body>
 </html>
